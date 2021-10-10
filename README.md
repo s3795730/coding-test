@@ -13,6 +13,8 @@ Orders can be filtered by order name, customer id and date range.
 
 1. cd into Backend
 2. run `pip install -r requirements.txt`
-3. run `python3 app.py`
-4. cd into Frontend/frontend
-5. run `npm run serve`
+3. run `python3 initialize.py` for initializing the databases
+4. run `python3 app.py`
+5. cd into Frontend/frontend
+6. run `npm run serve`
+7. go to your web browser at "http://localhost:8080/orders"
