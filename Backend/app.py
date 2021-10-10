@@ -20,7 +20,7 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 connection = psycopg2.connect("host='localhost' port= '5432' dbname='orders' user= 'postgres' password= 'password'")
 
 # connecting to mongoDB
-client = pymongo.MongoClient("mongodb+srv://mongodb:mongodb@cluster0.i8jlz.mongodb.net/mydb?retryWrites=true&w=majority")
+client = pymongo.MongoClient("mongodb+srv://mongodb:mongodb@cluster0.i8jlz.mongodb.net/mydb?ssl=true&ssl_cert_reqs=CERT_NONE")
 db = client.mydb
 
 # method to render orders
@@ -55,11 +55,12 @@ def orders():
     sql = ("""select order_name, cast(created_at as varchar(30)), 
             total_amt,del_amt, customer_id
             from all_orders""") 
-    cur.execute(sql)
-    orders = cur.fetchall()
-
-    orders = getOrders(orders)
-
+    try:
+        cur.execute(sql)
+        orders = cur.fetchall()
+        orders = getOrders(orders)
+    except:
+        connection.rollback()
     return jsonify(orders)
 
 @app.route('/filterOrders', methods=['POST','GET'])
@@ -72,13 +73,16 @@ def filterOrders():
         filter = '%'+filt['filt']+'%'
         
         # get orders having given order name or part of order name
-        cur.execute("""select order_name, cast(created_at as varchar(30)), 
-        total_amt,del_amt, customer_id  from all_orders 
-        where customer_id like (%s) or 
-        order_name like (%s);""",(filter,filter))
-        orders = cur.fetchall()
-    
-        orders=getOrders(orders)
+        try:
+            cur.execute("""select order_name, cast(created_at as varchar(30)), 
+            total_amt,del_amt, customer_id  from all_orders 
+            where customer_id like (%s) or 
+            order_name like (%s);""",(filter,filter))
+            orders = cur.fetchall()
+        
+            orders=getOrders(orders)
+        except:
+            connection.rollback()
 
     return jsonify(orders)
 
@@ -91,19 +95,22 @@ def filterByDate():
         startdate = ''
         enddate = ''
         
+        try:
         # query for filtering orders by date range
-        if(date['startdate'] and date['enddate']):
-            cur.execute("""select order_name, cast(created_at as varchar(30)), 
-                total_amt,del_amt, customer_id from all_orders where 
-                created_at between cast(%s as timestamptz)
-                and cast(%s as timestamptz)""",(date['startdate'],date['enddate']))
-        #if both start date and end date not given return all orders
-        else:
-            cur.execute("""select order_name, cast(created_at as varchar(30)), 
-            total_amt,del_amt, customer_id
-            from all_orders""")
-        orders = cur.fetchall()
-        orders=getOrders(orders)
+            if(date['startdate'] and date['enddate']):
+                cur.execute("""select order_name, cast(created_at as varchar(30)), 
+                    total_amt,del_amt, customer_id from all_orders where 
+                    created_at between cast(%s as timestamptz)
+                    and cast(%s as timestamptz)""",(date['startdate'],date['enddate']))
+            #if both start date and end date not given return all orders
+            else:
+                cur.execute("""select order_name, cast(created_at as varchar(30)), 
+                total_amt,del_amt, customer_id
+                from all_orders""")
+            orders = cur.fetchall()
+            orders=getOrders(orders)
+        except:
+            connection.rollback()
     return jsonify(orders)
 
 if __name__ == "__main__":

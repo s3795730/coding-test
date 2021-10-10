@@ -11,7 +11,7 @@ connection.autocommit = True
 cursor = connection.cursor()
 
 # connecting to mongoDB
-client = pymongo.MongoClient("mongodb+srv://mongodb:mongodb@cluster0.i8jlz.mongodb.net/mydb?retryWrites=true&w=majority")
+client = pymongo.MongoClient("mongodb+srv://mongodb:mongodb@cluster0.i8jlz.mongodb.net/mydb?ssl=true&ssl_cert_reqs=CERT_NONE")
 # collection mydb from mongoDB
 db = client.mydb
 
@@ -119,9 +119,9 @@ insert_order_items()
 insert_orders()
 insert_deliveries()
 view_all_orders()
-add_to_orders()
-add_to_customers()
-add_to_cust_company()
+# add_to_orders()
+# add_to_customers()
+# add_to_cust_company()
 
 # close cursor and connection to postgreSQL
 cursor.close()
