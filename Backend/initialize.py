@@ -119,9 +119,9 @@ insert_order_items()
 insert_orders()
 insert_deliveries()
 view_all_orders()
-# add_to_orders()
-# add_to_customers()
-# add_to_cust_company()
+add_to_orders()
+add_to_customers()
+add_to_cust_company()
 
 # close cursor and connection to postgreSQL
 cursor.close()
